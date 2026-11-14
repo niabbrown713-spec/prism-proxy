@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="default">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prism — justniaaOS</title>
+  <style>
+    :root, [data-theme="default"] {
+      --bg: #0f141c;
+      --surface: #161e29;
+      --surface-2: #1f2937;
+      --border: rgba(131, 201, 214, 0.16);
+      --text: #f0f7fa;
+      --muted: #8fa6b2;
+      --accent: #83c9d6;
+      --accent-glow: rgba(131, 201, 214, 0.25);
+    }
+    [data-theme="dark"] {
+      --bg: #0a0a0c;
+      --surface: #131317;
+      --surface-2: #1c1c22;
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f4f4f6;
+      --muted: #8e8e98;
+      --accent: #e4e4e7;
+      --accent-glow: rgba(255, 255, 255, 0.15);
+    }
+    [data-theme="ocean"] {
+      --bg: #061822;
+      --surface: #0b2534;
+      --surface-2: #11354a;
+      --border: rgba(56, 189, 248, 0.18);
+      --text: #e0f2fe;
+      --muted: #7dd3fc;
+      --accent: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.25);
+    }
+    [data-theme="forest"] {
+      --bg: #09150f;
+      --surface: #102319;
+      --surface-2: #173325;
+      --border: rgba(74, 222, 128, 0.16);
+      --text: #ecfdf5;
+      --muted: #86efac;
+      --accent: #4ade80;
+      --accent-glow: rgba(74, 222, 128, 0.22);
+    }
+    [data-theme="sunset"] {
+      --bg: #190c14;
+      --surface: #271320;
+      --surface-2: #381b2e;
+      --border: rgba(251, 113, 133, 0.18);
+      --text: #fff1f2;
+      --muted: #fda4af;
+      --accent: #fb7185;
+      --accent-glow: rgba(251, 113, 133, 0.25);
+    }
+    [data-theme="midnight"] {
+      --bg: #050509;
+      --surface: #0d0d16;
+      --surface-2: #151524;
+      --border: rgba(167, 139, 250, 0.16);
+      --text: #f5f3ff;
+      --muted: #a5b4fc;
+      --accent: #a78bfa;
+      --accent-glow: rgba(167, 139, 250, 0.25);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: background 0.25s, color 0.25s;
+    }
+
+    /* Top OS Dock & Tabs */
+    .top-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 12px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      gap: 10px;
+    }
+    .tabs {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow-x: auto;
+      flex: 1;
+    }
+    .tab {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 12px;
+      color: var(--muted);
+      cursor: pointer;
+      max-width: 180px;
+      user-select: none;
+    }
+    .tab.active {
+      background: var(--surface-2);
+      color: var(--text);
+      border-color: var(--accent);
+    }
+    .tab span.title {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .tab .close-tab { opacity: 0.6; font-size: 14px; }
+    .tab .close-tab:hover { opacity: 1; color: var(--accent); }
+
+    .os-badge {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--accent);
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+
+    .icon-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--muted);
+      border-radius: 7px;
+      padding: 5px 8px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: 0.15s;
+    }
+    .icon-btn:hover, .icon-btn.active {
+      background: var(--surface-2);
+      color: var(--accent);
+      border-color: var(--border);
+    }
+
+    /* Address Bar */
+    .nav-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .address-form {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 3px 12px;
+    }
+    .address-form:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    .address-form input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-size: 13px;
+      padding: 4px 6px;
+    }
+    .go-btn {
+      background: var(--accent);
+      color: #081016;
+      border: none;
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Main Workspace */
+    .workspace {
+      position: relative;
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+    iframe#viewer {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #fff;
+      display: none;
+    }
+
+    /* Prism Home Screen */
+    .home-screen {
+      flex: 1;
+      overflow-y: auto;
+      padding: 36px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background:
+        radial-gradient(circle at 25% 15%, var(--accent-glow), transparent 45%),
+        radial-gradient(circle at 80% 85%, rgba(131, 201, 214, 0.08), transparent 45%),
+        var(--bg);
+    }
+    .hero {
+      max-width: 820px;
+      width: 100%;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .pill {
+      display: inline-block;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      padding: 5px 14px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+    .hero h1 {
+      font-size: 46px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 6px;
+    }
+    .hero p {
+      color: var(--muted);
+      font-size: 15px;
+      margin-bottom: 16px;
+    }
+    .clock-bar {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+    .clock-bar strong { color: var(--text); font-variant-numeric: tabular-nums; }
+
+    /* Quick Chips */
+    .quick-tools {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .tool-chip {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+    .tool-chip:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    /* 01 / 02 / 03 Cards */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 16px;
+      max-width: 840px;
+      width: 100%;
+      margin-bottom: 26px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      text-align: left;
+    }
+    .card .num {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+    .card h3 { font-size: 17px; margin-bottom: 6px; }
+    .card p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+    /* Theme Bar */
+    .theme-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      max-width: 840px;
+      width: 100%;
+    }
+    .theme-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 6px 13px;
+      border-radius: 999px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .theme-btn.active, .theme-btn:hover {
+      color: var(--text);
+      border-color: var(--accent);
+    }
+
+    /* Right Side Drawer (Notes, Music, History, Favorites) */
+    .drawer {
+      width: 300px;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      padding: 16px;
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+      overflow-y: auto;
+    }
+    .drawer.open { display: flex; }
+    .drawer h4 {
+      font-size: 13px;
+      color: var(--accent);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .drawer textarea {
+      height: 120px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      padding: 10px;
+      font-size: 12.5px;
+      resize: vertical;
+      outline: none;
+    }
+    .history-list {
+  max-height: 130px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 12px;
+}
+.history-item {
+  padding: 6px 8px;
+  background: var(--bg);
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.history-item:hover { color: var(--accent); }
+
+  </style>
+</head>
+<body>
+
+  <!-- Top Tab & OS Bar -->
+  <div class="top-strip">
+    <div class="tabs" id="tabList"></div>
+    <button class="icon-btn" onclick="createTab()" title="New tab">＋</button>
+    <div class="os-badge">justniaaOS</div>
+  </div>
+
+  <!-- Navigation & Address Bar -->
+  <div class="nav-bar">
+    <button class="icon-btn" onclick="goHome()" title="Home">🏠</button>
+    <button class="icon-btn" onclick="navBack()" title="Back">←</button>
+        <button class="icon-btn" onclick="navForward()" title="Forward">→</button>
+    <button class="icon-btn" onclick="navReload()" title="Refresh">↻</button>
+
+    <form class="address-form" onsubmit="handleNavigate(event)">
+      <input type="text" id="urlInput" placeholder="Search or enter a web address (e.g. wikipedia.org)" autocomplete="off" />
+      <button type="button" class="icon-btn" onclick="toggleFavorite()" title="Bookmark / Favorite" id="favStar">☆</button>
+      <button type="submit" class="go-btn">Go</button>
+    </form>
+
+    <button class="icon-btn" onclick="copyAddress()" title="Copy address">▣</button>
+    <button class="icon-btn" onclick="toggleCodeMode()" title="Iframe Code Mode">{}</button>
+    <button class="icon-btn" onclick="openDrawer('notes')" title="Notes">🗒</button>
+    <button class="icon-btn" onclick="openDrawer('history')" title="History & Favorites">⌛</button>
+    <button class="icon-btn" onclick="toggleWiki()" title="justniaaOS Wiki">⚙</button>
+    <button class="icon-btn" onclick="toggleFullscreen()" title="Toggle fullscreen">⛶</button>
+  </div>
+
+  <!-- Main Workspace -->
+  <div class="workspace">
+    <!-- Iframe Code Editor (Hidden unless Iframe Mode is active) -->
+    <div id="codeEditorPane" style="display:none; width:45%; background:var(--surface); border-right:1px solid var(--border); flex-direction:column; padding:12px; gap:8px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px;">
+        <strong style="color:var(--accent)">Iframe Mode — HTML Editor</strong>
+        <div style="display:flex; gap:6px;">
+          <button class="go-btn" onclick="runCustomHtml()">Update preview</button>
+          <button class="icon-btn" onclick="toggleCodeMode()">[x]</button>
+        </div>
+      </div>
+      <textarea id="htmlCodeInput" style="flex:1; background:var(--bg); color:var(--text); border:1px solid var(--border); border-radius:8px; padding:10px; font-family:monospace; font-size:12px; resize:none;" placeholder="<h1>Hello Prism!</h1>
+<p>Write HTML, CSS, or JS and click Update preview.</p>"></textarea>
+    </div>
+
+    <!-- Proxied Website & Code Preview Iframe -->
+    <iframe id="viewer" src="about:blank"></iframe>
+
+    <!-- Updated Prism Landing Screen -->
+    <div class="home-screen" id="homeScreen">
+      <div class="hero">
+        <div class="pill">YOUR PRIVATE HTML BROWSER</div>
+        <h1>Prism</h1>
+        <p>A little space for everything online.</p>
+        <div class="clock-bar">
+          <strong id="clock">--:--</strong>
+          <span>• Welcome back</span>
+        </div>
+
+        <!-- Updated Quick Tool Chips -->
+        <div class="quick-tools">
+          <button class="tool-chip" onclick="loadUrl('https://tlk.io')">💬 Prism Chat</button>
+          <button class="tool-chip" onclick="loadUrl('https://play2048.co')">🕹 Games</button>
+          <button class="tool-chip" onclick="toggleCodeMode()">{} Code</button>
+          <button class="tool-chip" onclick="openDrawer('music')">🎵 Music</button>
+          <button class="tool-chip" onclick="openDrawer('notes')">🗒 Notes</button>
+          <button class="tool-chip" onclick="toggleWiki()">⚙ All tools</button>
+        </div>
+
+        <div style="font-size:12px; color:var(--muted); display:flex; justify-content:center; gap:16px;">
+          <span>✦ <strong style="color:var(--text)">Your browser, your way</strong></span>
+          <span>↗ <strong style="color:var(--text)">Browse, create, and save</strong></span>
+        </div>
+      </div>
+
+      <!-- 01 / 02 / 03 Feature Cards -->
+      <div class="cards">
+        <div class="card">
+          <div class="num">01</div>
+          <h3>Browse</h3>
+          <p>Enter a web address above to open a site in your private preview.</p>
+        </div>
+        <div class="card">
+          <div class="num">02</div>
+          <h3>Create</h3>
+          <p>Switch on Iframe Mode to build and preview your own HTML.</p>
+        </div>
+        <div class="card">
+          <div class="num">03</div>
+          <h3>Make it yours</h3>
+          <p>Keep notes, save favorites, and choose a theme that feels right.</p>
+        </div>
+      </div>
+
+      <!-- Updated Theme Selector (Default, Dark, Ocean, Forest, Sunset, Midnight) -->
+      <div class="theme-bar" id="themeBar">
+        <button class="theme-btn active" onclick="setTheme('default', this)">Default</button>
+        <button class="theme-btn" onclick="setTheme('dark', this)">Dark</button>
+        <button class="theme-btn" onclick="setTheme('ocean', this)">Ocean</button>
+        <button class="theme-btn" onclick="setTheme('forest', this)">Forest</button>
+        <button class="theme-btn" onclick="setTheme('sunset', this)">Sunset</button>
+        <button class="theme-btn" onclick="setTheme('midnight', this)">Midnight</button>
+      </div>
+    </div>
+
+    <!-- Slide-out Drawer (Notes, History, Favorites, Music) -->
+    <aside class="drawer" id="drawer">
+      <h4><span id="drawerTitle">Notes & Tools</span><span style="cursor:pointer" onclick="closeDrawer()">×</span></h4>
+      
+      <textarea id="notesArea" placeholder="Jot down ideas here... saved automatically."></textarea>
+
+      <div style="border-top:1px solid var(--border); padding-top:10px;">
+        <h4 style="margin-bottom:6px;"><span>🎵 Music Player</span></h4>
+        <input type="file" id="musicInput" accept="audio/*" style="font-size:11px; color:var(--muted); width:100%; margin-bottom:6px;" />
+        <audio id="audioPlayer" controls style="width:100%; height:32px;"></audio>
+      </div>
+
+      <div style="border-top:1px solid var(--border); padding-top:10px;">
+        <h4 style="margin-bottom:6px;"><span>★ Favorites</span></h4>
+        <div class="history-list" id="favoritesList" style="max-height:90px;"></div>
+      </div>
+
+      <div style="border-top:1px solid var(--border); padding-top:10px;">
+        <h4 style="margin-bottom:6px;"><span>⌛ History</span><span style="cursor:pointer;font-size:11px;color:var(--muted)" onclick="clearHistory()">Clear</span></h4>
+        <div class="history-list" id="historyList" style="max-height:110px;"></div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- justniaaOS Wiki Modal -->
+  <div id="wikiModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); align-items:center; justify-content:center; z-index:99;">
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:16px; max-width:480px; width:90%; padding:24px; color:var(--text);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h3>justniaaOS Wiki</h3>
+        <button class="icon-btn" onclick="toggleWiki()">×</button>
+      </div>
+      <p style="font-size:13px; color:var(--muted); line-height:1.6; margin-bottom:12px;">
+        <strong>justniaaOS</strong> is a private HTML browser for previewing websites, experimenting with code, and keeping track of your favorite links.
+      </p>
+      <ul style="font-size:12px; color:var(--muted); padding-left:18px; line-height:1.7;">
+        <li><strong>Address bar:</strong> Type any URL or search query to load through your Node.js proxy.</li>
+        <li><strong>Code Mode ({}):</strong> Write HTML, CSS, and JS and click <em>Update preview</em>.</li>
+        <li><strong>Privacy:</strong> Notes, history, favorites, and themes stay stored locally in your browser.</li>
+      </ul>
+    </div>
+  </div>
+
+    <script>
+    let tabs = [];
+    let activeTabId = null;
+    let historyItems = JSON.parse(localStorage.getItem('prism_history') || '[]');
+    let favoriteItems = JSON.parse(localStorage.getItem('prism_favorites') || '[]');
+
+    const viewer = document.getElementById('viewer');
+    const homeScreen = document.getElementById('homeScreen');
+    const urlInput = document.getElementById('urlInput');
+
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('clock').textContent = now.toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    function setTheme(theme, btn) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('prism_theme', theme);
+      document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+    }
+
+    const savedTheme = localStorage.getItem('prism_theme');
+    if (savedTheme) {
+      const matchBtn = Array.from(document.querySelectorAll('.theme-btn'))
+        .find(b => b.textContent.toLowerCase() === savedTheme);
+      setTheme(savedTheme, matchBtn);
+    }
+
+    const notesArea = document.getElementById('notesArea');
+    if (notesArea) {
+      notesArea.value = localStorage.getItem('prism_notes') || '';
+      notesArea.addEventListener('input', () => {
+        localStorage.setItem('prism_notes', notesArea.value);
+      });
+    }
+
+    const musicInput = document.getElementById('musicInput');
+    if (musicInput) {
+      musicInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const player = document.getElementById('audioPlayer');
+          player.src = URL.createObjectURL(file);
+          player.play();
+        }
+      });
+    }
+
+    function toggleCodeMode() {
+      const pane = document.getElementById('codeEditorPane');
+      const isHidden = pane.style.display === 'none' || pane.style.display === '';
+      pane.style.display = isHidden ? 'flex' : 'none';
+      if (isHidden) {
+        homeScreen.style.display = 'none';
+        viewer.style.display = 'block';
+        runCustomHtml();
+      }
+    }
+
+    function runCustomHtml() {
+      const code = document.getElementById('htmlCodeInput').value;
+      viewer.srcdoc = code || '<body style="font-family:sans-serif;padding:24px;"><h2>Prism HTML Preview</h2><p>Type HTML on the left and click Update preview.</p></body>';
+    }
+
+    function createTab(url) {
+      const targetUrl = url || '';
+      const id = Date.now() + Math.random();
+      tabs.push({ id: id, title: targetUrl || 'Prism Home', url: targetUrl });
+      switchTab(id);
+    }
+
+    function switchTab(id) {
+      activeTabId = id;
+      const tab = tabs.find(t => t.id === id);
+      if (!tab) return;
+
+      urlInput.value = tab.url;
+      updateStarIcon();
+      if (tab.url) {
+        viewer.removeAttribute('srcdoc');
+        homeScreen.style.display = 'none';
+        viewer.style.display = 'block';
+        viewer.src = '/proxy/' + tab.url;
+      } else {
+        viewer.style.display = 'none';
+        viewer.src = 'about:blank';
+        homeScreen.style.display = 'flex';
+      }
+      renderTabs();
+    }
+
+    function closeTab(e, id) {
+      e.stopPropagation();
+      tabs = tabs.filter(t => t.id !== id);
+      if (tabs.length === 0) {
+        createTab();
+      } else if (activeTabId === id) {
+        switchTab(tabs[tabs.length - 1].id);
+      } else {
+        renderTabs();
+      }
+    }
+
+    function renderTabs() {
+      const list = document.getElementById('tabList');
+      list.innerHTML = '';
+      tabs.forEach(tab => {
+        const el = document.createElement('div');
+        el.className = 'tab' + (tab.id === activeTabId ? ' active' : '');
+        el.onclick = () => switchTab(tab.id);
+        el.innerHTML = '<span class="title">' + tab.title + '</span>' +
+                       '<span class="close-tab" onclick="closeTab(event, ' + tab.id + ')">×</span>';
+        list.appendChild(el);
+      });
+    }
+
+    function handleNavigate(e) {
+      e.preventDefault();
+      loadUrl(urlInput.value);
+    }
+
+    function loadUrl(raw) {
+      let url = raw.trim();
+      if (!url) return;
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        url = (url.includes('.') && !url.includes(' '))
+          ? 'https://' + url
+          : 'https://www.google.com/search?q=' + encodeURIComponent(url);
+      }
+
+      const tab = tabs.find(t => t.id === activeTabId);
+      if (tab) {
+        tab.url = url;
+        try {
+          tab.title = new URL(url).hostname;
+        } catch (err) {
+          tab.title = url;
+        }
+      }
+
+      historyItems = [url, ...historyItems.filter(item => item !== url)].slice(0, 25);
+      localStorage.setItem('prism_history', JSON.stringify(historyItems));
+      renderLists();
+      switchTab(activeTabId);
+    }
+
+    function goHome() {
+      const tab = tabs.find(t => t.id === activeTabId);
+      if (tab) {
+        tab.url = '';
+        tab.title = 'Prism Home';
+        switchTab(activeTabId);
+      }
+    }
+
+    function toggleFavorite() {
+      const url = urlInput.value.trim();
+      if (!url) return;
+      if (favoriteItems.includes(url)) {
+        favoriteItems = favoriteItems.filter(u => u !== url);
+      } else {
+        favoriteItems.unshift(url);
+      }
+      localStorage.setItem('prism_favorites', JSON.stringify(favoriteItems));
+      updateStarIcon();
+      renderLists();
+    }
+
+    function updateStarIcon() {
+      const url = urlInput.value.trim();
+      document.getElementById('favStar').textContent = favoriteItems.includes(url) ? '★' : '☆';
+    }
+
+    function navBack() {
+      try { viewer.contentWindow.history.back(); } catch (e) {}
+    }
+
+    function navForward() {
+      try { viewer.contentWindow.history.forward(); } catch (e) {}
+    }
+
+    function navReload() {
+      if (viewer.style.display === 'block') {
+        viewer.src = viewer.src;
+      }
+    }
+
+    function copyAddress() {
+      if (urlInput.value) {
+        navigator.clipboard.writeText(urlInput.value);
+      }
+    }
+
+    function openDrawer() {
+      document.getElementById('drawer').classList.add('open');
+    }
+
+    function closeDrawer() {
+      document.getElementById('drawer').classList.remove('open');
+    }
+
+    function toggleWiki() {
+      const modal = document.getElementById('wikiModal');
+      modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    function renderLists() {
+      document.getElementById('historyList').innerHTML = historyItems
+        .map(u => '<div class="history-item" onclick="loadUrl(\'' + u + '\')">' + u + '</div>')
+        .join('');
+      document.getElementById('favoritesList').innerHTML = favoriteItems
+        .map(u => '<div class="history-item" onclick="loadUrl(\'' + u + '\')">★ ' + u + '</div>')
+        .join('');
+    }
+
+    function clearHistory() {
+      historyItems = [];
+      localStorage.removeItem('prism_history');
+      renderLists();
+    }
+
+    renderLists();
+    createTab();
+  </script>
+</body>
+</html>
