@@ -289,13 +289,14 @@
 
     /* 01 / 02 / 03 Cards */
     .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-      gap: 16px;
-      max-width: 840px;
-      width: 100%;
-      margin-bottom: 26px;
-    }
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  max-width: 840px;
+  width: 100%;
+  margin: 28px 0;
+}
+
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
