@@ -15,6 +15,8 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Prism running at http://localhost:${PORT}`);
-}).on('upgrade', unblocker.onUpgrade);
+});
+
+server.on('upgrade', unblocker.onUpgrade);
