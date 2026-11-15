@@ -597,10 +597,25 @@
     }
 
     function switchTab(id) {
-      activeTabId = id;
-      const tab = tabs.find(t => t.id === id);
-      if (!tab) return;
-      if (tab.url) {
+  activeTabId = id;
+  const tab = tabs.find(t => t.id === id);
+  if (!tab) return;
+
+  urlInput.value = tab.url;
+  updateStarIcon();
+  if (tab.url) {
+    viewer.removeAttribute('srcdoc');
+    homeScreen.style.display = 'none';
+    viewer.style.display = 'block';
+    viewer.src = tab.url; // Loads directly without needing a local /proxy server
+  } else {
+    viewer.style.display = 'none';
+    viewer.src = 'about:blank';
+    homeScreen.style.display = 'flex';
+  }
+  renderTabs();
+}
+
   viewer.removeAttribute('srcdoc');
   homeScreen.style.display = 'none';
   viewer.style.display = 'block';
