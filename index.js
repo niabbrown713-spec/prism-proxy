@@ -3,7 +3,7 @@ const path = require('path');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 
 // Log every incoming request so you can see traffic in Railway logs
 app.use((req, res, next) => {
