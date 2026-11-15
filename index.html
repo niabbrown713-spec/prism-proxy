@@ -378,12 +378,12 @@
       outline: none;
     }
     .history-list {
-  max-height: 130px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  font-size: 12px;
+    max-height: 130px;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-size: 12px;
 }
 .history-item {
   padding: 6px 8px;
@@ -392,7 +392,7 @@
   cursor: pointer;
   color: var(--muted);
   white-space: nowrap;
-  overflow: hidden;
+  /* overflow: hidden; */
   text-overflow: ellipsis;
 }
 .history-item:hover { color: var(--accent); }
@@ -506,7 +506,7 @@
 
       <div style="border-top:1px solid var(--border); padding-top:10px;">
         <h4 style="margin-bottom:6px;"><span>⌛ History</span><span style="cursor:pointer;font-size:11px;color:var(--muted)" onclick="clearHistory()">Clear</span></h4>
-        <div class="history-list" id="historyList" style="max-height:110px;"></div>
+        <div class="history-list" id="historyList" style="max-height:263px;"></div>
       </div>
     </aside>
   </div>
