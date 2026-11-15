@@ -438,7 +438,8 @@
     <iframe id="viewer" src="about:blank"></iframe>
 
     <!-- Updated Prism Landing Screen -->
-    <div class="home-screen" id="homeScreen" style="display:flex; flex-direction:column; align-items:center; width:100%;">
+    <!-- Updated Prism Landing Screen -->
+    <div class="home-screen" id="homeScreen" style="display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%;">
       <div class="hero">
         <div class="pill">YOUR PRIVATE HTML BROWSER</div>
         <h1>Prism</h1>
@@ -448,44 +449,23 @@
           <span>• Welcome back</span>
         </div>
 
-        <!-- Updated Quick Tool Chips -->
+        <!-- Quick Tool Chips -->
         <div class="quick-tools">
-          <button class="tool-chip" onclick="loadUrl('https://prism-chat-production.up.railway.app/')">💬 Prism Chat</button>
-          <button class="tool-chip" onclick="loadUrl('https://web-games.io/')">🕹 Games</button>
+          <button class="tool-chip" onclick="loadUrl('https://railway.app')">💬 Prism Chat</button>
+          <button class="tool-chip" onclick="loadUrl('https://play2048.co')">🕹 Games</button>
           <button class="tool-chip" onclick="toggleCodeMode()">{} Code</button>
           <button class="tool-chip" onclick="openDrawer('music')">🎵 Music</button>
           <button class="tool-chip" onclick="openDrawer('notes')">🗒 Notes</button>
           <button class="tool-chip" onclick="toggleWiki()">⚙ All tools</button>
-</div>
-
         </div>
 
-        <div style="font-size:12px; color:var(--muted); display:flex; justify-content:center; gap:16px;">
+        <div style="font-size:12px; color:var(--muted); display:flex; justify-content:center; gap:16px; margin-bottom:24px;">
           <span>✦ <strong style="color:var(--text)">Your browser, your way</strong></span>
           <span>↗ <strong style="color:var(--text)">Browse, create, and save</strong></span>
         </div>
       </div>
 
-      <!-- 01 / 02 / 03 Feature Cards -->
-      <div class="cards">
-        <div class="card">
-          <div class="num">01</div>
-          <h3>Browse</h3>
-          <p>Enter a web address above to open a site in your private preview.</p>
-        </div>
-        <div class="card">
-          <div class="num">02</div>
-          <h3>Create</h3>
-          <p>Switch on Iframe Mode to build and preview your own HTML.</p>
-        </div>
-        <div class="card">
-          <div class="num">03</div>
-          <h3>Make it yours</h3>
-          <p>Keep notes, save favorites, and choose a theme that feels right.</p>
-        </div>
-      </div>
-
-      <!-- Updated Theme Selector (Default, Dark, Ocean, Forest, Sunset, Midnight) -->
+      <!-- Theme Selector -->
       <div class="theme-bar" id="themeBar">
         <button class="theme-btn active" onclick="setTheme('default', this)">Default</button>
         <button class="theme-btn" onclick="setTheme('dark', this)">Dark</button>
@@ -495,6 +475,7 @@
         <button class="theme-btn" onclick="setTheme('midnight', this)">Midnight</button>
       </div>
     </div>
+
 
     <!-- Slide-out Drawer (Notes, History, Favorites, Music) -->
     <aside class="drawer" id="drawer">
