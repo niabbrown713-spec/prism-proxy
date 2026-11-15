@@ -600,6 +600,19 @@
       activeTabId = id;
       const tab = tabs.find(t => t.id === id);
       if (!tab) return;
+      if (tab.url) {
+  viewer.removeAttribute('srcdoc');
+  homeScreen.style.display = 'none';
+  viewer.style.display = 'block';
+
+  // Load Prism Chat directly, route external blocked sites through /proxy/
+  if (tab.url.includes('prism-chat-production.up.railway.app')) {
+    viewer.src = tab.url;
+  } else {
+    viewer.src = '/proxy/' + tab.url;
+  }
+}
+
 
       urlInput.value = tab.url;
       updateStarIcon();
