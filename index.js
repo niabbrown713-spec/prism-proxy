@@ -37,15 +37,24 @@ app.use('/proxy', (req, res, next) => {
         // Request uncompressed HTML so responseInterceptor never reads raw Brotli/Zstd bytes
         proxyReq.setHeader('accept-encoding', 'identity');
       },
-      proxyRes: responseInterceptor(async (responseBuffer, proxyRes, req, res) => {
+            proxyRes: responseInterceptor(async (responseBuffer, proxyRes, req, res) => {
+        // Remove frame-blocking headers from BOTH proxyRes and the outgoing Express response (res)
         delete proxyRes.headers['x-frame-options'];
         delete proxyRes.headers['content-security-policy'];
         delete proxyRes.headers['content-security-policy-report-only'];
         delete proxyRes.headers['content-encoding'];
 
+        res.removeHeader('x-frame-options');
+        res.removeHeader('content-security-policy');
+        res.removeHeader('content-security-policy-report-only');
+        res.removeHeader('content-encoding');
+
         const contentType = proxyRes.headers['content-type'] || '';
         if (contentType.includes('text/html')) {
           let html = responseBuffer.toString('utf8');
+
+          // Remove HTML <meta> CSP tags that block framing or scripts
+          html = html.replace(/<meta[^>]*http-equiv=["']?(Content-Security-Policy|X-Frame-Options)["']?[^>]*>/gi, '');
 
           // Rewrite root-relative src="/..." and href="/..."
           html = html.replace(/(href|src)=["']\/([^/"'][^"']*)["']/gi, (match, attr, relPath) => {
@@ -71,6 +80,7 @@ app.use('/proxy', (req, res, next) => {
 
         return responseBuffer;
       }),
+
       error: (err, req, res) => {
         console.error('Proxy error:', err.message);
         if (!res.headersSent) {
