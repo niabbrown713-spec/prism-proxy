@@ -1,6 +1,7 @@
 {
   "name": "prism-browser",
   "version": "1.0.0",
+  "description": "Prism — justniaaOS private HTML proxy browser",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
