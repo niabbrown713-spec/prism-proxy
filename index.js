@@ -48,9 +48,10 @@ app.use('/proxy', (req, res, next) => {
   })(req, res, next);
 });
 
-const server = app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Prism running on http://0.0.0:${PORT}`);
+const server = app.listen(PORT, () => {
+  console.log(`Prism running on port ${PORT}`);
 });
+
 
 process.on('SIGTERM', () => server.close(() => process.exit(0)));
 process.on('SIGINT', () => server.close(() => process.exit(0)));
