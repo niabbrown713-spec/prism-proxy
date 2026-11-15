@@ -519,7 +519,7 @@
     </div>
   </div>
 
-    <script>
+      <script>
     let tabs = [];
     let activeTabId = null;
     let historyItems = JSON.parse(localStorage.getItem('prism_history') || '[]');
@@ -597,37 +597,9 @@
     }
 
     function switchTab(id) {
-  activeTabId = id;
-  const tab = tabs.find(t => t.id === id);
-  if (!tab) return;
-
-  urlInput.value = tab.url;
-  updateStarIcon();
-  if (tab.url) {
-    viewer.removeAttribute('srcdoc');
-    homeScreen.style.display = 'none';
-    viewer.style.display = 'block';
-    viewer.src = tab.url; // Loads directly without needing a local /proxy server
-  } else {
-    viewer.style.display = 'none';
-    viewer.src = 'about:blank';
-    homeScreen.style.display = 'flex';
-  }
-  renderTabs();
-}
-
-  viewer.removeAttribute('srcdoc');
-  homeScreen.style.display = 'none';
-  viewer.style.display = 'block';
-
-  // Load Prism Chat directly, route external blocked sites through /proxy/
-  if (tab.url.includes('prism-chat-production.up.railway.app')) {
-    viewer.src = tab.url;
-  } else {
-    viewer.src = '/proxy/' + tab.url;
-  }
-}
-
+      activeTabId = id;
+      const tab = tabs.find(t => t.id === id);
+      if (!tab) return;
 
       urlInput.value = tab.url;
       updateStarIcon();
@@ -635,7 +607,12 @@
         viewer.removeAttribute('srcdoc');
         homeScreen.style.display = 'none';
         viewer.style.display = 'block';
-        viewer.src = '/proxy/' + tab.url;
+
+        if (tab.url.includes('prism-chat-production.up.railway.app')) {
+          viewer.src = tab.url;
+        } else {
+          viewer.src = '/proxy?url=' + encodeURIComponent(tab.url);
+        }
       } else {
         viewer.style.display = 'none';
         viewer.src = 'about:blank';
@@ -680,7 +657,7 @@
       if (!url.startsWith('http://') && !url.startsWith('https://')) {
         url = (url.includes('.') && !url.includes(' '))
           ? 'https://' + url
-          : 'https://www.google.com/search?q=' + encodeURIComponent(url);
+          : 'https://duckduckgo.com' + encodeURIComponent(url);
       }
 
       const tab = tabs.find(t => t.id === activeTabId);
