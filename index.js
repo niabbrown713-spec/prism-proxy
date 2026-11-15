@@ -30,31 +30,35 @@ app.use('/proxy', (req, res, next) => {
     target: parsed.origin,
     changeOrigin: true,
     followRedirects: true,
-    selfHandleResponse: true, // Required so we can rewrite HTML links & stylesheets
+    selfHandleResponse: true,
     pathRewrite: () => parsed.pathname + parsed.search,
     on: {
+      proxyReq: (proxyReq) => {
+        // Request uncompressed HTML so responseInterceptor never reads raw Brotli/Zstd bytes
+        proxyReq.setHeader('accept-encoding', 'identity');
+      },
       proxyRes: responseInterceptor(async (responseBuffer, proxyRes, req, res) => {
-        // Strip headers that block iframes
         delete proxyRes.headers['x-frame-options'];
         delete proxyRes.headers['content-security-policy'];
         delete proxyRes.headers['content-security-policy-report-only'];
+        delete proxyRes.headers['content-encoding'];
 
         const contentType = proxyRes.headers['content-type'] || '';
         if (contentType.includes('text/html')) {
           let html = responseBuffer.toString('utf8');
 
-          // Rewrite root-relative src="/..." and href="/..." to go through /proxy?url=
+          // Rewrite root-relative src="/..." and href="/..."
           html = html.replace(/(href|src)=["']\/([^/"'][^"']*)["']/gi, (match, attr, relPath) => {
             const fullAssetUrl = `${parsed.origin}/${relPath}`;
             return `${attr}="/proxy?url=${encodeURIComponent(fullAssetUrl)}"`;
           });
 
-          // Rewrite full http(s) links/scripts/stylesheets to also stay inside the proxy
+          // Rewrite full http(s) URLs to stay inside the proxy
           html = html.replace(/(href|src)=["'](https?:\/\/[^"']+)["']/gi, (match, attr, fullUrl) => {
             return `${attr}="/proxy?url=${encodeURIComponent(fullUrl)}"`;
           });
 
-          // Inject <base> tag for any remaining relative paths (like "css/style.css")
+          // Inject <base> tag for remaining relative paths
           const baseTag = `<base href="${parsed.origin}/">`;
           if (html.includes('<head>')) {
             html = html.replace('<head>', `<head>${baseTag}`);
@@ -65,7 +69,6 @@ app.use('/proxy', (req, res, next) => {
           return html;
         }
 
-        // Return CSS, JS, images, and fonts untouched
         return responseBuffer;
       }),
       error: (err, req, res) => {
