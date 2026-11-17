@@ -29,6 +29,7 @@ app.use('/proxy', (req, res, next) => {
   return createProxyMiddleware({
     target: parsed.origin,
     changeOrigin: true,
+    secure: false,
     followRedirects: true,
     selfHandleResponse: true,
     pathRewrite: () => parsed.pathname + parsed.search,
@@ -36,64 +37,50 @@ app.use('/proxy', (req, res, next) => {
       proxyReq: (proxyReq) => {
         // Request uncompressed HTML so responseInterceptor never reads raw Brotli/Zstd bytes
         proxyReq.setHeader('accept-encoding', 'identity');
+        // Provide a standard browser User-Agent so sites don't block or misroute the request
+        proxyReq.setHeader(
+          'user-agent',
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+        );
+        // Strip local cookies/headers that can bloat upstream requests
+        proxyReq.removeHeader('cookie');
+        proxyReq.removeHeader('referer');
       },
-            proxyRes: responseInterceptor(async (responseBuffer, proxyRes, req, res) => {
-        // Remove frame-blocking headers from BOTH proxyRes and the outgoing Express response (res)
-        delete proxyRes.headers['x-frame-options'];
-        delete proxyRes.headers['content-security-policy'];
-        delete proxyRes.headers['content-security-policy-report-only'];
-        delete proxyRes.headers['content-encoding'];
+      proxyRes: responseInterceptor(async (responseBuffer, proxyRes, req, res) => {
+        // Remove frame-blocking & oversized headers from BOTH proxyRes and outgoing Express res
+        const blockedHeaders = [
+          'x-frame-options',
+          'content-security-policy',
+          'content-security-policy-report-only',
+          'content-encoding',
+          'strict-transport-security',
+          'cross-origin-opener-policy',
+          'cross-origin-embedder-policy',
+          'cross-origin-resource-policy'
+        ];
 
-        res.removeHeader('x-frame-options');
-        res.removeHeader('content-security-policy');
-        res.removeHeader('content-security-policy-report-only');
-        res.removeHeader('content-encoding');
+        blockedHeaders.forEach((header) => {
+          delete proxyRes.headers[header];
+          res.removeHeader(header);
+        });
+
+        // Prevent oversized Set-Cookie headers from overflowing or breaking iframe sessions
+        if (proxyRes.headers['set-cookie']) {
+          delete proxyRes.headers['set-cookie'];
+          res.removeHeader('set-cookie');
+        }
 
         const contentType = proxyRes.headers['content-type'] || '';
         if (contentType.includes('text/html')) {
           let html = responseBuffer.toString('utf8');
 
-          // Remove HTML <meta> CSP tags that block framing or scripts
+          // Remove HTML <meta> CSP/frame tags
           html = html.replace(/<meta[^>]*http-equiv=["']?(Content-Security-Policy|X-Frame-Options)["']?[^>]*>/gi, '');
 
-          // Rewrite root-relative src="/..." and href="/..."
-          html = html.replace(/(href|src)=["']\/([^/"'][^"']*)["']/gi, (match, attr, relPath) => {
-            const fullAssetUrl = `${parsed.origin}/${relPath}`;
-            return `${attr}="/proxy?url=${encodeURIComponent(fullAssetUrl)}"`;
-          });
-
-          // Rewrite full http(s) URLs to stay inside the proxy
-          html = html.replace(/(href|src)=["'](https?:\/\/[^"']+)["']/gi, (match, attr, fullUrl) => {
+          // 1. Rewrite protocol-relative URLs (e.g. src="//cdn.site.com/app.js")
+          html = html.replace(/(href|src)=["']\/\/([^"']+)["']/gi, (match, attr, rest) => {
+            const fullUrl = `${parsed.protocol}//${rest}`;
             return `${attr}="/proxy?url=${encodeURIComponent(fullUrl)}"`;
           });
 
-          // Inject <base> tag for remaining relative paths
-          const baseTag = `<base href="${parsed.origin}/">`;
-          if (html.includes('<head>')) {
-            html = html.replace('<head>', `<head>${baseTag}`);
-          } else {
-            html = baseTag + html;
-          }
-
-          return html;
-        }
-
-        return responseBuffer;
-      }),
-
-      error: (err, req, res) => {
-        console.error('Proxy error:', err.message);
-        if (!res.headersSent) {
-          res.status(502).send('Could not load site: ' + err.message);
-        }
-      }
-    }
-  })(req, res, next);
-});
-
-const server = app.listen(PORT, () => {
-  console.log(`Prism running on port ${PORT}`);
-});
-
-process.on('SIGTERM', () => server.close(() => process.exit(0)));
-process.on('SIGINT', () => server.close(() => process.exit(0)));
+          // 2. Rewrite root-relative src="/..." and href
