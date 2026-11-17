@@ -83,4 +83,44 @@ app.use('/proxy', (req, res, next) => {
             return `${attr}="/proxy?url=${encodeURIComponent(fullUrl)}"`;
           });
 
-          // 2. Rewrite root-relative src="/..." and href
+          // 2. Rewrite root-relative src="/..." and href="/..."
+          html = html.replace(/(href|src)=["']\/([^/"'][^"']*)["']/gi, (match, attr, relPath) => {
+            const fullAssetUrl = `${parsed.origin}/${relPath}`;
+            return `${attr}="/proxy?url=${encodeURIComponent(fullAssetUrl)}"`;
+          });
+
+          // 3. Rewrite full http(s) URLs to stay inside the proxy
+          html = html.replace(/(href|src)=["'](https?:\/\/[^"']+)["']/gi, (match, attr, fullUrl) => {
+            return `${attr}="/proxy?url=${encodeURIComponent(fullUrl)}"`;
+          });
+
+          // Inject <base> tag so any remaining relative assets resolve against the origin
+          const baseTag = `<base href="${parsed.origin}/">`;
+          if (html.match(/<head[^>]*>/i)) {
+            html = html.replace(/<head[^>]*>/i, (match) => `${match}${baseTag}`);
+          } else {
+            html = baseTag + html;
+          }
+
+          return html;
+        }
+
+        return responseBuffer;
+      }),
+
+      error: (err, req, res) => {
+        console.error('Proxy error:', err.message);
+        if (!res.headersSent) {
+          res.status(502).send('Could not load site: ' + err.message);
+        }
+      }
+    }
+  })(req, res, next);
+});
+
+const server = app.listen(PORT, () => {
+  console.log(`Prism running on port ${PORT}`);
+});
+
+process.on('SIGTERM', () => server.close(() => process.exit(0)));
+process.on('SIGINT', () => server.close(() => process.exit(0)));
