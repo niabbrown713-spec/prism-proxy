@@ -703,7 +703,7 @@ section {
       if (!url.startsWith('http://') && !url.startsWith('https://')) {
         url = (url.includes('.') && !url.includes(' '))
           ? 'https://' + url
-          : 'https://duckduckgo.com/?q=' + encodeURIComponent(url);
+          : 'https://www.startpage.com/sp/search?query=' + encodeURIComponent(url);
       }
 
       const tab = tabs.find(t => t.id === activeTabId);
