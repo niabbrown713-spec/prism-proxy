@@ -4,7 +4,7 @@
   "description": "Prism — justniaaOS private HTML proxy browser",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node --max-http-header-size=65536 index.js"
   },
   "dependencies": {
     "express": "^4.21.2",
