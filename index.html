@@ -791,13 +791,19 @@ section {
     }
 
     function toggleiframeFullscreen() {
-                    viewer.requestFullscreen();
-                } else {
-                    viewer.exitFullscreen();
-                } if viewer.style.display = 'none'; {
-                      return
-                  }
-            }
+  // 1. Check if hidden first and exit early
+  if (viewer.style.display === 'none') {
+    return;
+  }
+
+  // 2. Toggle fullscreen mode
+  if (!document.fullscreenElement) {
+    viewer.requestFullscreen();
+  } else {
+    document.exitFullscreen();
+  }
+}
+
     function renderLists() {
       document.getElementById('historyList').innerHTML = historyItems
         .map(u => '<div class="history-item" onclick="loadUrl(\'' + u + '\')">' + u + '</div>')
