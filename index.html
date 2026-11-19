@@ -532,10 +532,11 @@
         </div>
         <!-- Navigation & Address Bar -->
         <div class="nav-bar">
-            <button class="icon-btn" onclick="goHome()" title="Home">🏠</button>
             <button class="icon-btn" onclick="navBack()" title="Back">←</button>
             <button class="icon-btn" onclick="navForward()" title="Forward">→</button>
             <button class="icon-btn" onclick="navReload()" title="Refresh">↻</button>
+            <button class="icon-btn" onclick="goHome()" title="Home">🏠</button>
+            <button class="icon-btn" onclick="toggleiframeFullscreen()" title="Toggle iframe fullscreen">⛶</button>
             <form class="address-form" onsubmit="handleNavigate(event)">
                 <input type="text" id="urlInput" placeholder="Search or enter a web address (e.g. wikipedia.org)" autocomplete="off"/>
                 <button type="button" class="icon-btn" onclick="toggleFavorite()" title="Bookmark / Favorite" id="favStar">☆</button>
@@ -546,6 +547,7 @@
             <button class="icon-btn" onclick="openDrawer('notes')" title="Notes">🗒</button>
             <button class="icon-btn" onclick="openDrawer('history')" title="History & Favorites">⌛</button>
             <button class="icon-btn" onclick="toggleFullscreen()" title="Toggle fullscreen">⛶</button>
+            <button class="icon-btn" onclick="toggleiframeFullscreen()" title="Toggle iframe fullscreen">⛶</button>
         </div>
         <!-- Main Workspace -->
         <div class="workspace">
@@ -861,6 +863,14 @@
                 }
             }
 
+            function toggleiframeFullscreen() {
+                    viewer.requestFullscreen();
+                } else {
+                    viewer.exitFullscreen();
+                } if viewer.style.display = 'none'; {
+                      return
+                  }
+            }
             function renderLists() {
                 document.getElementById('historyList').innerHTML = historyItems.map(u => '<div class="history-item" onclick="loadUrl(\'' + u + '\')">' + u + '</div>').join('');
                 document.getElementById('favoritesList').innerHTML = favoriteItems.map(u => '<div class="history-item" onclick="loadUrl(\'' + u + '\')">★ ' + u + '</div>').join('');
